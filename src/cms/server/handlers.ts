@@ -252,26 +252,17 @@ export function createUploadRoute(config?: PolarisConfig) {
 
     const inputBuffer = Buffer.from(await file.arrayBuffer());
 
-    let webp: Buffer;
-    try {
-      const sharp = (await import('sharp')).default;
-      webp = await sharp(inputBuffer)
-        .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toBuffer();
-    } catch {
-      return NextResponse.json(
-        { error: 'Could not process image. Is the optional `sharp` dependency installed?' },
-        { status: 500 }
-      );
-    }
-
+    // Upload the original image as-is. No native image processing (sharp), so
+    // this runs on any host including edge/Workers. Editors should upload
+    // reasonably web-sized images; next/image handles display optimization.
+    const ext = (file.name.match(/\.([a-zA-Z0-9]+)$/)?.[1] || 'png').toLowerCase();
     const base = slugify(file.name.replace(/\.[^.]+$/, '')) || 'image';
-    const path = `${base}-${Date.now()}.webp`;
+    const path = `${base}-${Date.now()}.${ext}`;
+    const contentType = file.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`;
 
     const supabase = adminClient();
-    const { error } = await supabase.storage.from(cfg.uploadBucket).upload(path, webp, {
-      contentType: 'image/webp',
+    const { error } = await supabase.storage.from(cfg.uploadBucket).upload(path, inputBuffer, {
+      contentType,
       upsert: false,
     });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
