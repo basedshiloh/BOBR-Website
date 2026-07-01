@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* Dark mode is CLASS-based (opt-in via a `.dark` ancestor) rather than driven by
+   the OS preference. This keeps the public newspaper always light + readable
+   (the user explicitly does not want a Verge-style black site). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Editorial type: a characterful display serif for headlines (newspaper +
+     playful, to match the BOBR logo) and a clean grotesk for body copy. */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* BOBR blue, sampled from the logotype. */
+  --color-bobr-50: #eaf2ff;
+  --color-bobr-100: #d4e4ff;
+  --color-bobr-200: #a9c9ff;
+  --color-bobr-300: #7aabff;
+  --color-bobr-400: #4a89ff;
+  --color-bobr-500: #1f6bff;
+  --color-bobr-600: #1257e6;
+  --color-bobr-700: #0f47bd;
+  --color-bobr-800: #123f99;
+  --color-bobr-900: #14386f;
+
+  /* Newspaper surface palette. */
+  --color-paper: #f7f4ec;      /* warm off-white "newsprint" */
+  --color-paper-card: #fffdf8; /* slightly lighter card surface */
+  --color-ink: #16130f;        /* near-black ink for text */
+  --color-ink-soft: #4a463f;   /* secondary ink */
+  --color-rule: #e2ddd0;       /* hairline column rules */
+}
+
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Column-rule helpers for the newspaper grid. */
+.rule-t {
+  border-top: 1px solid var(--color-rule);
+}
+.rule-l {
+  border-left: 1px solid var(--color-rule);
+}
+
+/* Thin, all-caps "kicker"/section label used across the masthead + section
+   headers, evoking newspaper standfirsts. */
+.kicker {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  font-size: 0.6875rem;
+}
