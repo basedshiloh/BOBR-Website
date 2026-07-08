@@ -12,6 +12,7 @@ import RelatedPosts from "@/cms/components/blog/RelatedPosts";
 import CommentSection from "@/cms/components/shared/CommentSection";
 import JsonLd, { articleSchema, breadcrumbSchema } from "@/cms/components/seo/JsonLd";
 import AdSlot from "@/cms/ads/AdSlot";
+import { DesktopTOC, MobileTOC } from "@/components/site/TableOfContents";
 import { CATEGORIES } from "@/lib/polaris.config";
 
 export const dynamic = "force-dynamic";
@@ -137,6 +138,9 @@ export default async function PostPage({
             </div>
           )}
 
+          {/* TOC — mobile only (desktop version lives in sidebar) */}
+          <MobileTOC content={post.content} />
+
           <div className="mt-6">
             <MarkdownRenderer content={post.content} />
           </div>
@@ -166,9 +170,10 @@ export default async function PostPage({
           </div>
         </article>
 
-        {/* Sticky sidebar ad (wide screens) */}
+        {/* Sticky sidebar: TOC + ad (wide screens only) */}
         <aside className="hidden xl:col-span-4 xl:block">
-          <div className="sticky top-6">
+          <div className="sticky top-6 space-y-6">
+            <DesktopTOC content={post.content} />
             <AdSlot placement="post_sidebar" className="!my-0" />
           </div>
         </aside>

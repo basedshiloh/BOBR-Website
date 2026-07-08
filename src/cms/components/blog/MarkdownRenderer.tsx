@@ -25,7 +25,12 @@ export default function MarkdownRenderer({ content }: { content: string }) {
           </h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3">{children}</h3>
+          <h3
+            id={slugify(String(children))}
+            className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3 scroll-mt-8"
+          >
+            {children}
+          </h3>
         ),
         p: ({ children }) => (
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">{children}</p>
