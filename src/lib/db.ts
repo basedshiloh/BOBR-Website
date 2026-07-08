@@ -1,11 +1,17 @@
 import 'server-only';
 import postgres from 'postgres';
 
-// Single connection pool for the lifetime of the process.
-// DATABASE_URL format: postgres://user:pass@host:5432/dbname
-// Falls back to a dummy URL at build time — all query functions have try/catch
-// and return empty data, so the build succeeds without a live database.
-const db = postgres(process.env.DATABASE_URL || 'postgres://localhost:5432/placeholder', {
+// During `next build`, NEXT_PHASE is set to 'phase-production-build'.
+// Coolify injects DATABASE_URL as a build ARG, but the DB host is only
+// reachable at runtime (not from the isolated build container). Use a
+// dummy URL during build so the pool never attempts a real connection.
+// All query functions have try/catch and return empty data on failure.
+const buildTime = process.env.NEXT_PHASE === 'phase-production-build';
+const dbUrl = buildTime
+  ? 'postgres://localhost:5432/placeholder'
+  : (process.env.DATABASE_URL || 'postgres://localhost:5432/placeholder');
+
+const db = postgres(dbUrl, {
   max: 10,
   idle_timeout: 20,
   connect_timeout: 10,
