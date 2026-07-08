@@ -37,7 +37,7 @@ export function createLoginRoute() {
 
     const { username, password } = await req.json().catch(() => ({ username: '', password: '' }));
     console.log('[login-debug] ADMIN_USERNAME env:', JSON.stringify(process.env.ADMIN_USERNAME));
-    console.log('[login-debug] ADMIN_PASSWORD set:', !!process.env.ADMIN_PASSWORD);
+    console.log('[login-debug] ADMIN_PASSWORD length:', process.env.ADMIN_PASSWORD?.length, 'starts with:', process.env.ADMIN_PASSWORD?.slice(0, 5));
     console.log('[login-debug] submitted username:', JSON.stringify(String(username || '')));
     if (!checkCredentials(String(username || ''), String(password || ''))) {
       return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 });
