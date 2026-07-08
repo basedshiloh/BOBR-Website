@@ -20,7 +20,7 @@ export default function Masthead() {
           <span className="hidden sm:inline">{today}</span>
           <span className="kicker text-bobr-600">From the trenches</span>
           <a
-            href="https://x.com"
+            href="https://x.com/BasedBOBR"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden transition-colors hover:text-bobr-600 sm:inline"
