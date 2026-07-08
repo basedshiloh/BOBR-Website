@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Code, Link as LinkIcon, Image as ImageIcon, Eye, Pencil } from 'lucide-react';
+import { Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Code, Link as LinkIcon, Image as ImageIcon, Eye, Pencil, Loader2 } from 'lucide-react';
 import MarkdownRenderer from '../blog/MarkdownRenderer';
 
 interface Props {
@@ -11,7 +11,9 @@ interface Props {
 
 export default function MarkdownEditor({ value, onChange }: Props) {
   const ref = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<'write' | 'preview'>('write');
+  const [imgUploading, setImgUploading] = useState(false);
 
   function surround(before: string, after = before) {
     const ta = ref.current;
@@ -38,6 +40,22 @@ export default function MarkdownEditor({ value, onChange }: Props) {
     requestAnimationFrame(() => { ta.focus(); ta.selectionStart = ta.selectionEnd = start + prefix.length; });
   }
 
+  async function uploadAndInsert(file: File) {
+    setImgUploading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/cms/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    setImgUploading(false);
+    if (!data.url) return;
+    const alt = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+    const insertion = `![${alt}](${data.url})\n`;
+    const ta = ref.current;
+    const pos = ta ? ta.selectionStart : value.length;
+    onChange(value.slice(0, pos) + insertion + value.slice(pos));
+    requestAnimationFrame(() => { ta?.focus(); });
+  }
+
   const words = value.trim() ? value.trim().split(/\s+/).length : 0;
   const readMin = Math.max(1, Math.round(words / 200));
 
@@ -51,7 +69,6 @@ export default function MarkdownEditor({ value, onChange }: Props) {
     { icon: Quote, title: 'Quote', fn: () => prefixLine('> ') },
     { icon: Code, title: 'Inline code', fn: () => surround('`') },
     { icon: LinkIcon, title: 'Link', fn: () => surround('[', '](https://)') },
-    { icon: ImageIcon, title: 'Image', fn: () => surround('![alt](', ')') },
   ];
 
   return (
@@ -66,6 +83,17 @@ export default function MarkdownEditor({ value, onChange }: Props) {
               </button>
             );
           })}
+          {/* Image upload button */}
+          <button
+            type="button"
+            title="Upload image"
+            disabled={imgUploading}
+            onClick={() => fileRef.current?.click()}
+            className="p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          >
+            {imgUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) uploadAndInsert(f); }} />
         </div>
         <div className="flex items-center gap-1">
           <button type="button" onClick={() => setTab('write')} className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${tab === 'write' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'text-gray-500 dark:text-gray-400'}`}>
