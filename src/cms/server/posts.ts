@@ -22,12 +22,19 @@ interface PostRow {
   is_pillar: boolean | null;
   pillar_id: string | null;
   seo_score: number | null;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
+  // postgres package returns timestamptz as Date objects at runtime
+  published_at: Date | string | null;
+  created_at: Date | string;
+  updated_at: Date | string;
 }
 
 const INTENTS = ['informational', 'commercial', 'transactional', 'navigational'] as const;
+
+function toIso(v: Date | string | null | undefined): string {
+  if (!v) return new Date().toISOString();
+  if (v instanceof Date) return v.toISOString();
+  return String(v);
+}
 
 function toStringArray(v: unknown): string[] {
   if (Array.isArray(v)) return v.filter((x): x is string => typeof x === 'string');
@@ -63,8 +70,8 @@ export function rowToPost(r: PostRow): Post {
     isPillar: !!r.is_pillar,
     pillarId: r.pillar_id || null,
     seoScore: r.seo_score ?? 0,
-    date: (r.published_at || r.created_at || new Date().toISOString()).slice(0, 10),
-    updatedDate: r.updated_at ? r.updated_at.slice(0, 10) : undefined,
+    date: toIso(r.published_at || r.created_at).slice(0, 10),
+    updatedDate: r.updated_at ? toIso(r.updated_at).slice(0, 10) : undefined,
   };
 }
 
