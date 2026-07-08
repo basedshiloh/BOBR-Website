@@ -174,8 +174,8 @@ export function createPostsRoute(config: PolarisConfig) {
       try {
         if (id) {
           const [existing] = await db`SELECT published_at FROM posts WHERE id = ${id}`;
-          const publishedAt = (status === 'published' && !existing?.published_at)
-            ? new Date().toISOString() : null;
+          const isFirstPublish = status === 'published' && !existing?.published_at;
+          const publishedAt = isFirstPublish ? new Date().toISOString() : null;
 
           const [updated] = await db`
             UPDATE posts SET
@@ -205,6 +205,9 @@ export function createPostsRoute(config: PolarisConfig) {
             RETURNING id, slug
           `;
           revalidateBlog(slug);
+          if (isFirstPublish) {
+            import('../../lib/backup').then(({ createBackup }) => createBackup('on-publish')).catch(() => {});
+          }
           return NextResponse.json({ ok: true, id: updated.id, slug: updated.slug });
         } else {
           const publishedAt = status === 'published' ? new Date().toISOString() : null;
@@ -231,6 +234,9 @@ export function createPostsRoute(config: PolarisConfig) {
             RETURNING id, slug
           `;
           revalidateBlog(slug);
+          if (status === 'published') {
+            import('../../lib/backup').then(({ createBackup }) => createBackup('on-publish')).catch(() => {});
+          }
           return NextResponse.json({ ok: true, id: inserted.id, slug: inserted.slug });
         }
       } catch (e) {

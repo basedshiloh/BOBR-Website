@@ -19,6 +19,8 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { path: parts } = await params;
+  // Block access to the backups directory
+  if (parts[0] === 'backups') return new NextResponse('Not found', { status: 404 });
   // Prevent path traversal — only allow plain filenames
   const safe = parts.map((p) => path.basename(p));
   const filePath = path.join(process.cwd(), 'public', 'uploads', ...safe);

@@ -29,6 +29,7 @@ import AdsManager from '../ads/AdsManager';
 import { listAdsAdmin } from '../ads/ads-server';
 import Dashboard from './Dashboard';
 import AuthorsManager from '../components/cms/AuthorsManager';
+import BackupsManager from './BackupsManager';
 
 type Segments = string[];
 
@@ -113,6 +114,9 @@ async function renderPage(slug: Segments, config: PolarisConfig, settings: Polar
       const authors = await listAuthors();
       return <AuthorsManager initialAuthors={authors} />;
     }
+
+    case 'backups':
+      return <BackupsManager />;
 
     case 'comments':
       return <CommentsModerator />;
