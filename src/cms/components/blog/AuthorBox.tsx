@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import type { BlogAuthor } from '../../types';
 
 export default function AuthorBox({
@@ -35,8 +36,25 @@ export default function AuthorBox({
         )}
       </div>
       <div>
-        <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{author.name}</p>
+        {author.slug ? (
+          <Link href={`/author/${author.slug}`} className="font-semibold text-gray-900 dark:text-gray-100 text-sm hover:underline">{author.name}</Link>
+        ) : (
+          <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{author.name}</p>
+        )}
         <p className="text-xs text-gray-500 dark:text-gray-400">{author.bio}</p>
+        {(author.xUrl || author.githubUrl || author.websiteUrl) && (
+          <div className="flex items-center gap-3 mt-1.5">
+            {author.xUrl && (
+              <a href={author.xUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">X</a>
+            )}
+            {author.githubUrl && (
+              <a href={author.githubUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">GitHub</a>
+            )}
+            {author.websiteUrl && (
+              <a href={author.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Website</a>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-2 mt-1 text-xs text-gray-400 dark:text-gray-500 flex-wrap">
           <time dateTime={date}>{formatted}</time>
           <span>·</span>

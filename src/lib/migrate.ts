@@ -87,6 +87,27 @@ drop trigger if exists trg_ad_slots_updated_at on ad_slots;
 create trigger trg_ad_slots_updated_at
   before update on ad_slots
   for each row execute function set_updated_at();
+
+-- ── Authors ───────────────────────────────────────────────
+create table if not exists authors (
+  id          uuid primary key default gen_random_uuid(),
+  slug        text unique not null,
+  name        text not null,
+  bio         text default '',
+  avatar      text default '',
+  x_url       text default '',
+  github_url  text default '',
+  website_url text default '',
+  created_at  timestamptz default now()
+);
+
+-- ── Multi-category ────────────────────────────────────────
+alter table posts add column if not exists categories text[] default '{}';
+-- backfill: copy existing single category into the array for old posts
+update posts set categories = array[lower(category)] where cardinality(categories) = 0 and category != '';
+
+-- ── Author FK ─────────────────────────────────────────────
+alter table posts add column if not exists author_id uuid references authors(id) on delete set null;
 `;
 
 export async function runMigrations() {

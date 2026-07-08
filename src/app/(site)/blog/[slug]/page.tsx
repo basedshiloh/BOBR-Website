@@ -54,8 +54,9 @@ export default async function PostPage({
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const related = await getRelatedPosts(slug, post.category, 3);
-  const cat = categoryStyle(CATEGORIES, post.category);
+  const primaryCategory = post.categories[0] || post.category;
+  const related = await getRelatedPosts(slug, primaryCategory, 3);
+  const cat = categoryStyle(CATEGORIES, primaryCategory);
   const url = `https://basedbobr.com/blog/${post.slug}`;
 
   return (
@@ -74,7 +75,7 @@ export default async function PostPage({
       <JsonLd
         data={breadcrumbSchema([
           { name: "Home", url: "https://basedbobr.com" },
-          { name: cat.label, url: `https://basedbobr.com/${post.category}` },
+          { name: cat.label, url: `https://basedbobr.com/${primaryCategory}` },
           { name: post.title, url },
         ])}
       />
@@ -86,15 +87,19 @@ export default async function PostPage({
           <nav className="mb-4 text-xs text-ink-soft">
             <Link href="/" className="hover:text-bobr-600">Home</Link>
             <span className="mx-1.5">/</span>
-            <Link href={`/${post.category}`} className="hover:text-bobr-600">{cat.label}</Link>
+            <Link href={`/${primaryCategory}`} className="hover:text-bobr-600">{cat.label}</Link>
           </nav>
 
-          <Link
-            href={`/${post.category}`}
-            className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${cat.bg} ${cat.text}`}
-          >
-            {cat.label}
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            {post.categories.map(catKey => {
+              const c = categoryStyle(CATEGORIES, catKey);
+              return (
+                <Link key={catKey} href={`/${catKey}`} className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${c.bg} ${c.text}`}>
+                  {c.label}
+                </Link>
+              );
+            })}
+          </div>
 
           <h1 className="mt-3 font-display text-3xl font-bold leading-[1.1] sm:text-4xl">
             {post.title}

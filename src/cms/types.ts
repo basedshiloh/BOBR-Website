@@ -7,6 +7,21 @@ export interface BlogAuthor {
   name: string;
   avatar?: string;
   bio: string;
+  slug?: string;
+  xUrl?: string;
+  githubUrl?: string;
+  websiteUrl?: string;
+}
+
+export interface Author {
+  id: string;
+  slug: string;
+  name: string;
+  bio: string;
+  avatar: string;
+  xUrl: string;
+  githubUrl: string;
+  websiteUrl: string;
 }
 
 // A CMS-managed post (maps to the Supabase `posts` table).
@@ -20,6 +35,7 @@ export interface Post {
   metaDescription: string;
   focusKeyword: string;
   category: string;
+  categories: string[];
   author: BlogAuthor;
   content: string;
   featuredImage: string;

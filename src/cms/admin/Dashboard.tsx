@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FileText, MessageSquare, Link2, PlusCircle, Megaphone } from 'lucide-react';
+import { FileText, MessageSquare, Link2, PlusCircle, Megaphone, Users } from 'lucide-react';
 import { getAllPostsAdmin } from '../server/posts';
 
 export default async function Dashboard({ showLinkGenius = true }: { showLinkGenius?: boolean }) {
@@ -48,6 +48,11 @@ export default async function Dashboard({ showLinkGenius = true }: { showLinkGen
             <Megaphone className="w-6 h-6 text-blue-600 mb-2" />
             <p className="font-semibold text-gray-900 dark:text-gray-100">Manage ads</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Banners &amp; placements</p>
+          </Link>
+          <Link href="/polaris/authors" className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all">
+            <Users className="w-6 h-6 text-blue-600 mb-2" />
+            <p className="font-semibold text-gray-900 dark:text-gray-100">Authors</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Manage author profiles</p>
           </Link>
           {showLinkGenius && (
             <Link href="/polaris/links" className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all">

@@ -8,6 +8,7 @@ import {
   getPostByIdAdmin,
   getPublishedPosts,
   listApiKeysSafe,
+  listAuthors,
 } from './data';
 import { buildInternalLinkIndex } from '../lib/internal-links';
 import { buildContentGraph } from '../lib/content-graph';
@@ -27,6 +28,7 @@ import SettingsPanel from '../components/cms/SettingsPanel';
 import AdsManager from '../ads/AdsManager';
 import { listAdsAdmin } from '../ads/ads-server';
 import Dashboard from './Dashboard';
+import AuthorsManager from '../components/cms/AuthorsManager';
 
 type Segments = string[];
 
@@ -82,10 +84,11 @@ async function renderPage(slug: Segments, config: PolarisConfig, settings: Polar
       // posts/new or posts/<id>
       const id = param;
       const isNew = id === 'new';
-      const [post, allPosts, extraTargets] = await Promise.all([
+      const [post, allPosts, extraTargets, authors] = await Promise.all([
         isNew ? Promise.resolve(null) : getPostByIdAdmin(id),
         getAllPostsAdmin(),
         Promise.resolve(cfg.getLinkTargets?.() ?? []),
+        listAuthors(),
       ]);
       const resolvedExtra: LinkTarget[] = await Promise.resolve(extraTargets);
       const postTargets = allPosts
@@ -101,8 +104,14 @@ async function renderPage(slug: Segments, config: PolarisConfig, settings: Polar
           categories={cfg.categories}
           defaultAuthor={cfg.defaultAuthor}
           showLinkGenius={settings.linkGenius}
+          authors={authors}
         />
       );
+    }
+
+    case 'authors': {
+      const authors = await listAuthors();
+      return <AuthorsManager initialAuthors={authors} />;
     }
 
     case 'comments':

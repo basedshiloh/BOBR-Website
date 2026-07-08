@@ -26,6 +26,14 @@ interface PostRow {
   published_at: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
+  categories: string[] | null;
+  author_id: string | null;
+  // aliased from LEFT JOIN authors
+  author_slug: string | null;
+  author_x_url: string | null;
+  author_github_url: string | null;
+  author_website_url: string | null;
+  author_joined_avatar: string | null;
 }
 
 const INTENTS = ['informational', 'commercial', 'transactional', 'navigational'] as const;
@@ -57,11 +65,20 @@ export function rowToPost(r: PostRow): Post {
     excerpt: r.excerpt,
     metaDescription: r.meta_description || r.excerpt,
     focusKeyword: r.focus_keyword || '',
-    category: (r.category || '').toLowerCase(),
+    category: Array.isArray(r.categories) && r.categories.length > 0
+      ? r.categories[0]
+      : (r.category || '').toLowerCase(),
+    categories: Array.isArray(r.categories) && r.categories.length > 0
+      ? r.categories
+      : r.category ? [(r.category || '').toLowerCase()] : [],
     author: {
       name: r.author_name,
       bio: r.author_bio,
-      avatar: 'https://basedbobr.b-cdn.net/basedbobr/nft%20bver.webp',
+      avatar: r.author_joined_avatar || 'https://basedbobr.b-cdn.net/basedbobr/nft%20bver.webp',
+      slug: r.author_slug || undefined,
+      xUrl: r.author_x_url || undefined,
+      githubUrl: r.author_github_url || undefined,
+      websiteUrl: r.author_website_url || undefined,
     },
     content: r.content,
     featuredImage: r.featured_image,
@@ -81,7 +98,13 @@ export function rowToPost(r: PostRow): Post {
 
 export async function getPublishedPosts(): Promise<Post[]> {
   try {
-    const rows = await db`SELECT * FROM posts WHERE status = 'published' ORDER BY published_at DESC`;
+    const rows = await db`
+      SELECT p.*, a.slug AS author_slug, a.x_url AS author_x_url,
+        a.github_url AS author_github_url, a.website_url AS author_website_url,
+        a.avatar AS author_joined_avatar
+      FROM posts p LEFT JOIN authors a ON p.author_id = a.id
+      WHERE p.status = 'published' ORDER BY p.published_at DESC
+    `;
     return rows.map((r) => rowToPost(r as unknown as PostRow));
   } catch {
     return [];
@@ -90,7 +113,13 @@ export async function getPublishedPosts(): Promise<Post[]> {
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
-    const [row] = await db`SELECT * FROM posts WHERE slug = ${slug} AND status = 'published' LIMIT 1`;
+    const [row] = await db`
+      SELECT p.*, a.slug AS author_slug, a.x_url AS author_x_url,
+        a.github_url AS author_github_url, a.website_url AS author_website_url,
+        a.avatar AS author_joined_avatar
+      FROM posts p LEFT JOIN authors a ON p.author_id = a.id
+      WHERE p.slug = ${slug} AND p.status = 'published' LIMIT 1
+    `;
     return row ? rowToPost(row as unknown as PostRow) : null;
   } catch {
     return null;
@@ -100,9 +129,12 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 export async function getRelatedPosts(slug: string, category: string, limit = 3): Promise<Post[]> {
   try {
     const rows = await db`
-      SELECT * FROM posts
-      WHERE status = 'published' AND category = ${category} AND slug != ${slug}
-      ORDER BY published_at DESC
+      SELECT p.*, a.slug AS author_slug, a.x_url AS author_x_url,
+        a.github_url AS author_github_url, a.website_url AS author_website_url,
+        a.avatar AS author_joined_avatar
+      FROM posts p LEFT JOIN authors a ON p.author_id = a.id
+      WHERE p.status = 'published' AND p.category = ${category} AND p.slug != ${slug}
+      ORDER BY p.published_at DESC
       LIMIT ${limit}
     `;
     return rows.map((r) => rowToPost(r as unknown as PostRow));
@@ -114,7 +146,7 @@ export async function getRelatedPosts(slug: string, category: string, limit = 3)
 export async function getPaginatedPosts(page: number, perPage = 9, category?: string) {
   let all = await getPublishedPosts();
   const activeCategory = category || undefined;
-  if (activeCategory) all = all.filter((p) => p.category === activeCategory);
+  if (activeCategory) all = all.filter((p) => p.categories.includes(activeCategory));
   const totalPages = Math.ceil(all.length / perPage);
   const currentPage = Math.max(1, Math.min(page, totalPages || 1));
   const start = (currentPage - 1) * perPage;
@@ -131,7 +163,13 @@ export async function getPaginatedPosts(page: number, perPage = 9, category?: st
 
 export async function getAllPostsAdmin(): Promise<Post[]> {
   try {
-    const rows = await db`SELECT * FROM posts ORDER BY updated_at DESC`;
+    const rows = await db`
+      SELECT p.*, a.slug AS author_slug, a.x_url AS author_x_url,
+        a.github_url AS author_github_url, a.website_url AS author_website_url,
+        a.avatar AS author_joined_avatar
+      FROM posts p LEFT JOIN authors a ON p.author_id = a.id
+      ORDER BY p.updated_at DESC
+    `;
     return rows.map((r) => rowToPost(r as unknown as PostRow));
   } catch {
     return [];
@@ -140,7 +178,13 @@ export async function getAllPostsAdmin(): Promise<Post[]> {
 
 export async function getPostByIdAdmin(id: string): Promise<Post | null> {
   try {
-    const [row] = await db`SELECT * FROM posts WHERE id = ${id} LIMIT 1`;
+    const [row] = await db`
+      SELECT p.*, a.slug AS author_slug, a.x_url AS author_x_url,
+        a.github_url AS author_github_url, a.website_url AS author_website_url,
+        a.avatar AS author_joined_avatar
+      FROM posts p LEFT JOIN authors a ON p.author_id = a.id
+      WHERE p.id = ${id} LIMIT 1
+    `;
     return row ? rowToPost(row as unknown as PostRow) : null;
   } catch {
     return null;

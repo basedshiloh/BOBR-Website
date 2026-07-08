@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Save, Upload, ArrowLeft, Globe, FileText, Star } from 'lucide-react';
 import Link from 'next/link';
-import type { Post, PostStatus, PostIntent } from '../../types';
+import type { Post, PostStatus, PostIntent, Author } from '../../types';
 import type { LinkTarget } from '../../lib/internal-links';
 import { DEFAULT_CATEGORIES, type CategoryMap } from '../../config';
 import { slugify } from '../../lib/utils';
@@ -20,6 +20,7 @@ interface Props {
   categories?: CategoryMap;
   defaultAuthor?: { name: string; bio: string };
   showLinkGenius?: boolean;
+  authors?: Author[];
 }
 
 const INTENT_LABELS: Record<PostIntent, string> = {
@@ -29,8 +30,8 @@ const INTENT_LABELS: Record<PostIntent, string> = {
   navigational: 'Navigational — brand or specific page',
 };
 
-export default function PostEditor({ initial, linkIndex, pillars, categories = DEFAULT_CATEGORIES, defaultAuthor, showLinkGenius = true }: Props) {
-  const firstCategory = Object.keys(categories)[0] || '';
+export default function PostEditor({ initial, linkIndex, pillars, categories: categoriesConfig = DEFAULT_CATEGORIES, defaultAuthor, showLinkGenius = true, authors = [] }: Props) {
+  const firstCategory = Object.keys(categoriesConfig)[0] || '';
   const router = useRouter();
   const isNew = !initial;
 
@@ -41,7 +42,8 @@ export default function PostEditor({ initial, linkIndex, pillars, categories = D
   const [excerpt, setExcerpt] = useState(initial?.excerpt || '');
   const [metaDescription, setMetaDescription] = useState(initial?.metaDescription || '');
   const [focusKeyword, setFocusKeyword] = useState(initial?.focusKeyword || '');
-  const [category, setCategory] = useState(initial?.category || firstCategory);
+  const [categories, setCategories] = useState<string[]>(initial?.categories?.length ? initial.categories : [firstCategory]);
+  const [authorId, setAuthorId] = useState<string>('');
   const [authorName, setAuthorName] = useState(initial?.author.name || defaultAuthor?.name || '');
   const [authorBio, setAuthorBio] = useState(initial?.author.bio || defaultAuthor?.bio || '');
   const [content, setContent] = useState(initial?.content || '');
@@ -94,8 +96,10 @@ export default function PostEditor({ initial, linkIndex, pillars, categories = D
       excerpt,
       metaDescription: metaDescription || excerpt,
       focusKeyword,
-      category,
-      authorName,
+      categories,
+      category: categories[0] || '',
+      authorId: authorId || undefined,
+      authorName: authorId ? (authors.find(a => a.id === authorId)?.name || authorName) : authorName,
       authorBio,
       content,
       featuredImage,
@@ -187,20 +191,42 @@ export default function PostEditor({ initial, linkIndex, pillars, categories = D
             {/* Publish/meta settings */}
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Category</label>
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full text-sm bg-gray-50 dark:bg-gray-800 rounded-lg p-2 outline-none text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700">
-                  {Object.entries(categories).map(([key, s]) => (
-                    <option key={key} value={key}>{s.label}</option>
+                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Categories</label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {Object.entries(categoriesConfig).map(([key, s]) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={categories.includes(key)}
+                        onChange={e => {
+                          if (e.target.checked) setCategories(prev => prev.includes(key) ? prev : [...prev, key]);
+                          else setCategories(prev => prev.filter(c => c !== key));
+                        }}
+                        className="rounded border-gray-300 dark:border-gray-600 text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{s.label}</span>
+                    </label>
                   ))}
-                </select>
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Tags (comma-separated)</label>
                 <input value={tagsText} onChange={(e) => setTagsText(e.target.value)} className="w-full text-sm bg-gray-50 dark:bg-gray-800 rounded-lg p-2 outline-none text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Author name</label>
-                <input value={authorName} onChange={(e) => setAuthorName(e.target.value)} className="w-full text-sm bg-gray-50 dark:bg-gray-800 rounded-lg p-2 outline-none text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700" />
+                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Author</label>
+                {authors.length > 0 ? (
+                  <select value={authorId} onChange={e => {
+                    setAuthorId(e.target.value);
+                    const a = authors.find(x => x.id === e.target.value);
+                    if (a) { setAuthorName(a.name); setAuthorBio(a.bio); }
+                  }} className="w-full text-sm bg-gray-50 dark:bg-gray-800 rounded-lg p-2 outline-none text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700">
+                    <option value="">— unassigned —</option>
+                    {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                ) : (
+                  <input value={authorName} onChange={(e) => setAuthorName(e.target.value)} className="w-full text-sm bg-gray-50 dark:bg-gray-800 rounded-lg p-2 outline-none text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700" placeholder="Author name" />
+                )}
               </div>
             </div>
 

@@ -160,6 +160,11 @@ export function createPostsRoute(config: PolarisConfig) {
       const content = String(p.content || '');
       const status = p.status === 'published' ? 'published' : 'draft';
       const category = String(p.category || '').toLowerCase().trim();
+      // Accept either `categories` array or legacy single `category`
+      const rawCats = Array.isArray(p.categories) ? p.categories : category ? [category] : [];
+      const categories = rawCats.map((c: unknown) => String(c).toLowerCase().trim()).filter(Boolean);
+      const primaryCategory = categories[0] || category;
+      const authorId = p.authorId ? String(p.authorId) : null;
       const metaDescription = String(p.metaDescription || p.excerpt || '');
       const focusKeyword = String(p.focusKeyword || '');
       const { score: seoScore } = analyzeSeo({ title, metaDescription, slug, focusKeyword, content });
@@ -178,7 +183,9 @@ export function createPostsRoute(config: PolarisConfig) {
               excerpt = ${String(p.excerpt || '')},
               meta_description = ${metaDescription},
               focus_keyword = ${focusKeyword},
-              category = ${category},
+              category = ${primaryCategory},
+              categories = ${categories},
+              author_id = ${authorId},
               author_name = ${String(p.authorName || cfg.defaultAuthor.name || '')},
               author_bio = ${String(p.authorBio || cfg.defaultAuthor.bio || '')},
               content = ${content},
@@ -204,12 +211,14 @@ export function createPostsRoute(config: PolarisConfig) {
           const [inserted] = await db`
             INSERT INTO posts (
               slug, title, excerpt, meta_description, focus_keyword, category,
+              categories, author_id,
               author_name, author_bio, content, featured_image, featured_image_alt,
               summary, tags, reading_time, status, intent, is_pillar, pillar_id,
               seo_score, published_at
             ) VALUES (
               ${slug}, ${title}, ${String(p.excerpt || '')}, ${metaDescription},
-              ${focusKeyword}, ${String(p.category || '')},
+              ${focusKeyword}, ${primaryCategory},
+              ${categories}, ${authorId},
               ${String(p.authorName || cfg.defaultAuthor.name || '')},
               ${String(p.authorBio || cfg.defaultAuthor.bio || '')},
               ${content}, ${String(p.featuredImage || '')}, ${String(p.featuredImageAlt || '')},
