@@ -12,7 +12,7 @@ export {
   createBlogLatestRoute,
 } from './handlers';
 
-// Data helpers (published reads use the anon key; *Admin use the service role).
+// Data helpers.
 export {
   getPublishedPosts,
   getPostBySlug,
@@ -21,7 +21,6 @@ export {
   getAllPostsAdmin,
   getPostByIdAdmin,
   rowToPost,
-  adminClient,
 } from './posts';
 
 // Auth helpers (for custom middleware / guards).
