@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { BlogAuthor } from '../../types';
 
 export default function AuthorBox({
@@ -18,10 +19,20 @@ export default function AuthorBox({
 
   return (
     <div className="flex items-center gap-4 py-4">
-      <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
-        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-          {author.name.charAt(0)}
-        </span>
+      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-blue-100 dark:bg-blue-900/40">
+        {author.avatar ? (
+          <Image
+            src={author.avatar}
+            alt={author.name}
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center text-lg font-bold text-blue-600 dark:text-blue-400">
+            {author.name.charAt(0)}
+          </span>
+        )}
       </div>
       <div>
         <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{author.name}</p>

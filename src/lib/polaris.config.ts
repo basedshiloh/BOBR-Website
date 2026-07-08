@@ -65,7 +65,7 @@ const polarisConfig = defineConfig({
   siteHost: "basedbobr.com",
   uploadBucket: "blog-images",
   defaultAuthor: {
-    name: "BOBR Desk",
+    name: "Shiloh",
     bio: "Dispatches from the trenches — builder-first crypto coverage.",
   },
   features: { linkGenius: true },

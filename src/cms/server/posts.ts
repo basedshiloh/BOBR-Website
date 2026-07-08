@@ -58,7 +58,11 @@ export function rowToPost(r: PostRow): Post {
     metaDescription: r.meta_description || r.excerpt,
     focusKeyword: r.focus_keyword || '',
     category: (r.category || '').toLowerCase(),
-    author: { name: r.author_name, bio: r.author_bio },
+    author: {
+      name: r.author_name,
+      bio: r.author_bio,
+      avatar: 'https://basedbobr.b-cdn.net/basedbobr/nft%20bver.webp',
+    },
     content: r.content,
     featuredImage: r.featured_image,
     featuredImageAlt: r.featured_image_alt,
