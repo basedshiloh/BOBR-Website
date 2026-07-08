@@ -7,20 +7,40 @@ import rehypeRaw from 'rehype-raw';
 import { slugify } from '../../lib/utils';
 import TweetEmbed from './TweetEmbed';
 
-// Replace standalone X/Twitter status URLs on their own line with a
-// sentinel <div> so rehype-raw can pass them to our custom div handler.
-const TWEET_URL_RE = /^https?:\/\/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)[^\s]*$/;
+// Matches a tweet/X status URL anywhere it appears as the sole content of a line.
+// Handles bare URLs and markdown links: [anything](https://x.com/.../status/123)
+const TWEET_STATUS_RE = /https?:\/\/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/;
+
+function extractTweetId(trimmed: string): string | null {
+  // Bare URL on its own line
+  if (/^https?:\/\//.test(trimmed)) {
+    const m = trimmed.match(TWEET_STATUS_RE);
+    return m ? m[1] : null;
+  }
+  // Markdown link whose href is a tweet URL: [anything](https://x.com/…)
+  const mdLink = trimmed.match(/^\[.*?\]\((https?:\/\/[^)]+)\)$/);
+  if (mdLink) {
+    const m = mdLink[1].match(TWEET_STATUS_RE);
+    return m ? m[1] : null;
+  }
+  return null;
+}
 
 function preprocessContent(content: string): string {
-  return content
-    .split('\n')
-    .map((line) => {
-      const trimmed = line.trim();
-      const m = trimmed.match(TWEET_URL_RE);
-      if (m) return `<div data-tweet-id="${m[1]}"></div>`;
-      return line;
-    })
-    .join('\n');
+  const lines = content.split('\n');
+  const out: string[] = [];
+  for (const line of lines) {
+    const id = extractTweetId(line.trim());
+    if (id) {
+      // Blank lines before/after so remark treats the <div> as a block, not inline
+      if (out.length && out[out.length - 1] !== '') out.push('');
+      out.push(`<div data-tweet-id="${id}"></div>`);
+      out.push('');
+    } else {
+      out.push(line);
+    }
+  }
+  return out.join('\n');
 }
 
 export default function MarkdownRenderer({ content }: { content: string }) {
