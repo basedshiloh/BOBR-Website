@@ -57,7 +57,7 @@ export function rowToPost(r: PostRow): Post {
     excerpt: r.excerpt,
     metaDescription: r.meta_description || r.excerpt,
     focusKeyword: r.focus_keyword || '',
-    category: r.category || '',
+    category: (r.category || '').toLowerCase(),
     author: { name: r.author_name, bio: r.author_bio },
     content: r.content,
     featuredImage: r.featured_image,

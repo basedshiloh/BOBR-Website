@@ -159,6 +159,7 @@ export function createPostsRoute(config: PolarisConfig) {
 
       const content = String(p.content || '');
       const status = p.status === 'published' ? 'published' : 'draft';
+      const category = String(p.category || '').toLowerCase().trim();
       const metaDescription = String(p.metaDescription || p.excerpt || '');
       const focusKeyword = String(p.focusKeyword || '');
       const { score: seoScore } = analyzeSeo({ title, metaDescription, slug, focusKeyword, content });
@@ -177,7 +178,7 @@ export function createPostsRoute(config: PolarisConfig) {
               excerpt = ${String(p.excerpt || '')},
               meta_description = ${metaDescription},
               focus_keyword = ${focusKeyword},
-              category = ${String(p.category || '')},
+              category = ${category},
               author_name = ${String(p.authorName || cfg.defaultAuthor.name || '')},
               author_bio = ${String(p.authorBio || cfg.defaultAuthor.bio || '')},
               content = ${content},
