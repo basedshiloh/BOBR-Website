@@ -5,7 +5,7 @@ import { CATEGORIES, CATEGORY_ORDER } from "@/lib/polaris.config";
 export default function CategoryNav() {
   return (
     <nav className="rule-t rule-b border-b border-rule">
-      <ul className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-4 py-2.5">
+      <ul className="mx-auto flex max-w-6xl items-center justify-center gap-x-6 px-4 py-2.5 overflow-x-auto scrollbar-none whitespace-nowrap">
         {CATEGORY_ORDER.map((key) => (
           <li key={key}>
             <Link
