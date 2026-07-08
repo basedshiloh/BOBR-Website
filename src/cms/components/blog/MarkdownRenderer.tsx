@@ -33,11 +33,9 @@ function preprocessContent(content: string): string {
   const lines = content.split('\n');
   const out: string[] = [];
   for (const line of lines) {
-    // Strip any leading blockquote markers ("> ", "> > ", etc.) before checking
-    const stripped = line.replace(/^(\s*>\s*)+/, '').trim();
-    const id = extractTweetId(stripped);
+    // Only replace lines that are SOLELY a tweet URL (no other text on the line)
+    const id = extractTweetId(line.trim());
     if (id) {
-      // Blank lines before/after so remark treats the <div> as a block, not inline
       if (out.length && out[out.length - 1] !== '') out.push('');
       out.push(`<div data-tweet-id="${id}"></div>`);
       out.push('');
