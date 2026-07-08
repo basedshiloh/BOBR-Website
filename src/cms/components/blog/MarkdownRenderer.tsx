@@ -5,17 +5,35 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { slugify } from '../../lib/utils';
+import TweetEmbed from './TweetEmbed';
 
-// Renders CMS markdown with sensible, project-agnostic styling. Root-relative
-// image paths ("/…") are optimized through next/image; external URLs fall back
-// to a plain <img>. External links are nofollow unless the markdown link title
-// contains "dofollow": [text](https://example.com "dofollow").
+// Replace standalone X/Twitter status URLs on their own line with a
+// sentinel <div> so rehype-raw can pass them to our custom div handler.
+const TWEET_URL_RE = /^https?:\/\/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)[^\s]*$/;
+
+function preprocessContent(content: string): string {
+  return content
+    .split('\n')
+    .map((line) => {
+      const trimmed = line.trim();
+      const m = trimmed.match(TWEET_URL_RE);
+      if (m) return `<div data-tweet-id="${m[1]}"></div>`;
+      return line;
+    })
+    .join('\n');
+}
+
 export default function MarkdownRenderer({ content }: { content: string }) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeRaw]}
       components={{
+        div: ({ node, children, ...props }) => {
+          const tweetId = (props as Record<string, unknown>)['data-tweet-id'] as string | undefined;
+          if (tweetId) return <TweetEmbed tweetId={tweetId} />;
+          return <div {...props}>{children}</div>;
+        },
         h2: ({ children }) => (
           <h2
             id={slugify(String(children))}
@@ -119,7 +137,7 @@ export default function MarkdownRenderer({ content }: { content: string }) {
         ),
       }}
     >
-      {content}
+      {preprocessContent(content)}
     </ReactMarkdown>
   );
 }
