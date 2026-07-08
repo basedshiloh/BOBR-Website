@@ -82,7 +82,7 @@ export default async function HomePage() {
                 <p className="text-sm text-ink-soft">More stories coming soon.</p>
               )}
             </div>
-            <aside className="space-y-8 lg:col-span-4 lg:border-l lg:border-rule lg:pl-6">
+            <aside className="mx-auto w-full max-w-sm space-y-8 lg:mx-0 lg:max-w-none lg:col-span-4 lg:border-l lg:border-rule lg:pl-6">
               <AdSlot placement="home_sidebar" className="!my-0" />
               <TrenchesRail posts={trenches} />
             </aside>
