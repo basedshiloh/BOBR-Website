@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FileText, MessageSquare, Link2, PlusCircle, Megaphone, Users } from 'lucide-react';
 import { getAllPostsAdmin } from '../server/posts';
+import MigrateImagesButton from './MigrateImagesButton';
 
 export default async function Dashboard({ showLinkGenius = true }: { showLinkGenius?: boolean }) {
   const posts = await getAllPostsAdmin();
@@ -61,6 +62,11 @@ export default async function Dashboard({ showLinkGenius = true }: { showLinkGen
               <p className="text-sm text-gray-500 dark:text-gray-400">Internal link index</p>
             </Link>
           )}
+        </div>
+
+        <div className="mt-8">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Tools</p>
+          <MigrateImagesButton />
         </div>
       </div>
     </div>
