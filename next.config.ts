@@ -6,10 +6,8 @@ const nextConfig: NextConfig = {
   output: "standalone",
   turbopack: { root: __dirname },
   images: {
-    remotePatterns: [
-      // External images editors may reference (Unsplash for seed content, etc.)
-      { protocol: "https", hostname: "images.unsplash.com" },
-    ],
+    // Allow any HTTPS image — editors paste external URLs into the CMS.
+    remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
 };
 
