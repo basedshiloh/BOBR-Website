@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import type { MetadataRoute } from "next";
 import { getPublishedPosts } from "@/cms/server/posts";
 import { CATEGORY_ORDER } from "@/lib/polaris.config";
