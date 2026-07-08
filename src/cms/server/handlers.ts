@@ -39,6 +39,7 @@ export function createLoginRoute() {
     console.log('[login-debug] ADMIN_USERNAME env:', JSON.stringify(process.env.ADMIN_USERNAME));
     console.log('[login-debug] ADMIN_PASSWORD length:', process.env.ADMIN_PASSWORD?.length, 'starts with:', process.env.ADMIN_PASSWORD?.slice(0, 5));
     console.log('[login-debug] submitted username:', JSON.stringify(String(username || '')));
+    console.log('[login-debug] submitted password length:', String(password || '').length, 'starts with:', String(password || '').slice(0, 3));
     if (!checkCredentials(String(username || ''), String(password || ''))) {
       return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 });
     }
