@@ -1,13 +1,11 @@
 import type { NextConfig } from "next";
-import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
-  // Pin the workspace root to this project — a stray lockfile in the home dir
-  // otherwise makes Next infer the wrong root.
+  // Produces a minimal standalone server bundle — required for Docker deployment.
+  // node server.js is the entrypoint; no node_modules copy needed in the image.
+  output: "standalone",
   turbopack: { root: __dirname },
   images: {
-    // Featured images and ad banners are served from Supabase Storage; seed
-    // content may use Unsplash. next/image needs these hosts allow-listed.
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co" },
       { protocol: "https", hostname: "images.unsplash.com" },
@@ -16,7 +14,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-// Enables getCloudflareContext() (Cloudflare bindings / env) during `next dev`.
-// No-op outside the OpenNext Cloudflare dev flow.
-initOpenNextCloudflareForDev();
