@@ -1,12 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import type { Comment } from '../types';
 
 export type { Comment };
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const URL_PATTERN = /(?:https?:\/\/|www\.)[^\s]+|[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?/i;
 
@@ -15,13 +9,10 @@ export function containsUrl(text: string): boolean {
 }
 
 export async function getComments(pageId: string): Promise<Comment[]> {
-  const { data } = await supabase
-    .from('comments')
-    .select('*')
-    .eq('page_id', pageId)
-    .order('created_at', { ascending: true })
-    .limit(100);
-  return data || [];
+  const res = await fetch(`/api/comments?pageId=${encodeURIComponent(pageId)}`);
+  if (!res.ok) return [];
+  const { comments } = await res.json();
+  return comments || [];
 }
 
 export async function addComment(
@@ -35,16 +26,17 @@ export async function addComment(
     throw new Error('Links and URLs are not allowed in comments.');
   }
 
-  const { data } = await supabase
-    .from('comments')
-    .insert({
-      page_id: pageId,
-      page_type: pageType,
-      author_name: authorName.trim().slice(0, 50),
-      content: content.trim().slice(0, 2000),
-      ...(parentId ? { parent_id: parentId } : {}),
-    })
-    .select()
-    .single();
-  return data;
+  const res = await fetch('/api/comments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pageId, pageType, authorName, content, parentId }),
+  });
+
+  if (!res.ok) {
+    const { error } = await res.json().catch(() => ({ error: 'Failed to post comment' }));
+    throw new Error(error || 'Failed to post comment');
+  }
+
+  const { comment } = await res.json();
+  return comment;
 }

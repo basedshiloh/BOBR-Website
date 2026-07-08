@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   turbopack: { root: __dirname },
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "*.supabase.co" },
+      // External images editors may reference (Unsplash for seed content, etc.)
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },

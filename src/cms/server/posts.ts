@@ -1,19 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import db from '../../lib/db';
 import type { Post } from '../types';
-
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-// Public reads (RLS limits to status='published')
-function publicClient() {
-  return createClient(url, anonKey);
-}
-
-// Admin reads/writes (service role bypasses RLS) — server-only
-export function adminClient() {
-  return createClient(url, serviceKey || anonKey);
-}
 
 interface PostRow {
   id: string;
@@ -82,37 +68,36 @@ export function rowToPost(r: PostRow): Post {
   };
 }
 
-const SELECT = '*';
-
 export async function getPublishedPosts(): Promise<Post[]> {
-  const { data } = await publicClient()
-    .from('posts')
-    .select(SELECT)
-    .eq('status', 'published')
-    .order('published_at', { ascending: false });
-  return (data || []).map((r) => rowToPost(r as PostRow));
+  try {
+    const rows = await db`SELECT * FROM posts WHERE status = 'published' ORDER BY published_at DESC`;
+    return rows.map((r) => rowToPost(r as unknown as PostRow));
+  } catch {
+    return [];
+  }
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const { data } = await publicClient()
-    .from('posts')
-    .select(SELECT)
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .maybeSingle();
-  return data ? rowToPost(data as PostRow) : null;
+  try {
+    const [row] = await db`SELECT * FROM posts WHERE slug = ${slug} AND status = 'published' LIMIT 1`;
+    return row ? rowToPost(row as unknown as PostRow) : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getRelatedPosts(slug: string, category: string, limit = 3): Promise<Post[]> {
-  const { data } = await publicClient()
-    .from('posts')
-    .select(SELECT)
-    .eq('status', 'published')
-    .eq('category', category)
-    .neq('slug', slug)
-    .order('published_at', { ascending: false })
-    .limit(limit);
-  return (data || []).map((r) => rowToPost(r as PostRow));
+  try {
+    const rows = await db`
+      SELECT * FROM posts
+      WHERE status = 'published' AND category = ${category} AND slug != ${slug}
+      ORDER BY published_at DESC
+      LIMIT ${limit}
+    `;
+    return rows.map((r) => rowToPost(r as unknown as PostRow));
+  } catch {
+    return [];
+  }
 }
 
 export async function getPaginatedPosts(page: number, perPage = 9, category?: string) {
@@ -131,17 +116,22 @@ export async function getPaginatedPosts(page: number, perPage = 9, category?: st
   };
 }
 
-// ── Admin (service role) ──────────────────────────────────
+// ── Admin ──────────────────────────────────────────────────
 
 export async function getAllPostsAdmin(): Promise<Post[]> {
-  const { data } = await adminClient()
-    .from('posts')
-    .select(SELECT)
-    .order('updated_at', { ascending: false });
-  return (data || []).map((r) => rowToPost(r as PostRow));
+  try {
+    const rows = await db`SELECT * FROM posts ORDER BY updated_at DESC`;
+    return rows.map((r) => rowToPost(r as unknown as PostRow));
+  } catch {
+    return [];
+  }
 }
 
 export async function getPostByIdAdmin(id: string): Promise<Post | null> {
-  const { data } = await adminClient().from('posts').select(SELECT).eq('id', id).maybeSingle();
-  return data ? rowToPost(data as PostRow) : null;
+  try {
+    const [row] = await db`SELECT * FROM posts WHERE id = ${id} LIMIT 1`;
+    return row ? rowToPost(row as unknown as PostRow) : null;
+  } catch {
+    return null;
+  }
 }
