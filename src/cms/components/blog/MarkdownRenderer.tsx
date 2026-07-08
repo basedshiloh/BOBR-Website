@@ -30,7 +30,9 @@ function preprocessContent(content: string): string {
   const lines = content.split('\n');
   const out: string[] = [];
   for (const line of lines) {
-    const id = extractTweetId(line.trim());
+    // Strip any leading blockquote markers ("> ", "> > ", etc.) before checking
+    const stripped = line.replace(/^(\s*>\s*)+/, '').trim();
+    const id = extractTweetId(stripped);
     if (id) {
       // Blank lines before/after so remark treats the <div> as a block, not inline
       if (out.length && out[out.length - 1] !== '') out.push('');
