@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import { isValidToken, SESSION_COOKIE } from "@/cms/server";
 import { listAdsAdmin, saveAd, deleteAd, setAdActive, type AdInput } from "@/cms/ads/ads-server";
