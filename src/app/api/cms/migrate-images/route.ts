@@ -10,31 +10,24 @@ function isExternal(url: string): boolean {
   return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
 }
 
-function pickExt(url: string, contentType: string): string {
-  const fromUrl = url.split('?')[0].match(/\.([a-z0-9]{3,4})$/i)?.[1]?.toLowerCase();
-  if (fromUrl && ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif'].includes(fromUrl)) {
-    return fromUrl === 'jpeg' ? 'jpg' : fromUrl;
-  }
-  if (contentType.includes('webp')) return 'webp';
-  if (contentType.includes('png')) return 'png';
-  if (contentType.includes('gif')) return 'gif';
-  if (contentType.includes('svg')) return 'svg';
-  if (contentType.includes('avif')) return 'avif';
-  return 'jpg';
-}
-
-async function download(url: string): Promise<string | null> {
+async function downloadAsWebP(url: string): Promise<string | null> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
     if (!res.ok) return null;
     const ct = res.headers.get('content-type') || '';
-    const ext = pickExt(url, ct);
-    const raw = url.split('?')[0].split('/').pop() || 'image';
-    const base = raw.replace(/\.[^.]+$/, '').replace(/[^a-z0-9-]/gi, '-').slice(0, 60) || 'image';
-    const filename = `${base}-${Date.now()}.${ext}`;
+    const rawBuf = Buffer.from(await res.arrayBuffer());
+
+    const rawName = url.split('?')[0].split('/').pop() || 'image';
+    const base = rawName.replace(/\.[^.]+$/, '').replace(/[^a-z0-9-]/gi, '-').slice(0, 60) || 'image';
+
+    // SVGs can't be rasterized by sharp — keep as-is
+    const isSvg = ct.includes('svg') || url.split('?')[0].endsWith('.svg');
+    const filename = isSvg ? `${base}-${Date.now()}.svg` : `${base}-${Date.now()}.webp`;
+    const outBuf = isSvg ? rawBuf : await (await import('sharp')).default(rawBuf).webp({ quality: 82 }).toBuffer();
+
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadsDir, filename), Buffer.from(await res.arrayBuffer()));
+    fs.writeFileSync(path.join(uploadsDir, filename), outBuf);
     return `/uploads/${filename}`;
   } catch {
     return null;
@@ -59,11 +52,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Phase 2 — download each URL once
+  // Phase 2 — download + convert each URL once
   const urlMap = new Map<string, string>();
   const failed: string[] = [];
   for (const url of allUrls) {
-    const local = await download(url);
+    const local = await downloadAsWebP(url);
     if (local) urlMap.set(url, local);
     else failed.push(url);
   }

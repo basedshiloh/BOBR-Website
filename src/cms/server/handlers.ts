@@ -273,28 +273,62 @@ export function createKeysRoute() {
 
 // ─── Image upload → local public/uploads/ ────────────────
 
+async function toWebP(input: Buffer): Promise<Buffer> {
+  const sharp = (await import('sharp')).default;
+  return sharp(input).webp({ quality: 82 }).toBuffer();
+}
+
+async function saveImage(rawBuffer: Buffer, originalName: string): Promise<string> {
+  const base = slugify(originalName.replace(/\.[^.]+$/, '')) || 'image';
+  const filename = `${base}-${Date.now()}.webp`;
+  const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+  const webpBuffer = await toWebP(rawBuffer);
+  fs.writeFileSync(path.join(uploadsDir, filename), webpBuffer);
+  return `/uploads/${filename}`;
+}
+
 export function createUploadRoute(_config?: PolarisConfig) {
   return async function POST(req: NextRequest) {
     if (!(await isAuthorizedRequest(req))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const ct = req.headers.get('content-type') || '';
+
+    // ── JSON body: agent uploads via URL or base64 ────────────────────────
+    if (ct.includes('application/json')) {
+      const body = await req.json().catch(() => ({}));
+
+      // { url: "https://..." } — agent passes image URL, server fetches + converts
+      if (typeof body.url === 'string' && body.url.startsWith('http')) {
+        const res = await fetch(body.url, { signal: AbortSignal.timeout(20_000) });
+        if (!res.ok) return NextResponse.json({ error: 'Failed to fetch image URL' }, { status: 400 });
+        const raw = Buffer.from(await res.arrayBuffer());
+        const name = body.filename || body.url.split('/').pop()?.split('?')[0] || 'image';
+        const url = await saveImage(raw, name);
+        return NextResponse.json({ url });
+      }
+
+      // { data: "base64...", filename: "..." } — agent passes raw base64
+      if (typeof body.data === 'string') {
+        const raw = Buffer.from(body.data.replace(/^data:[^;]+;base64,/, ''), 'base64');
+        const url = await saveImage(raw, body.filename || 'image');
+        return NextResponse.json({ url });
+      }
+
+      return NextResponse.json({ error: 'Provide either url or data' }, { status: 400 });
+    }
+
+    // ── Multipart form: browser file picker ───────────────────────────────
     const form = await req.formData();
     const file = form.get('file');
     if (!(file instanceof File)) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
-
-    const inputBuffer = Buffer.from(await file.arrayBuffer());
-    const ext = (file.name.match(/\.([a-zA-Z0-9]+)$/)?.[1] || 'png').toLowerCase();
-    const base = slugify(file.name.replace(/\.[^.]+$/, '')) || 'image';
-    const filename = `${base}-${Date.now()}.${ext}`;
-
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadsDir, filename), inputBuffer);
-
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    const raw = Buffer.from(await file.arrayBuffer());
+    const url = await saveImage(raw, file.name);
+    return NextResponse.json({ url });
   };
 }
 
