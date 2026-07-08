@@ -12,13 +12,16 @@ import TweetEmbed from './TweetEmbed';
 const TWEET_STATUS_RE = /https?:\/\/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/;
 
 function extractTweetId(trimmed: string): string | null {
+  // Strip trailing sentence punctuation that agents often append
+  const clean = trimmed.replace(/[.,!?:]+$/, '').trim();
+
   // Bare URL on its own line
-  if (/^https?:\/\//.test(trimmed)) {
-    const m = trimmed.match(TWEET_STATUS_RE);
+  if (/^https?:\/\//.test(clean)) {
+    const m = clean.match(TWEET_STATUS_RE);
     return m ? m[1] : null;
   }
   // Markdown link whose href is a tweet URL: [anything](https://x.com/…)
-  const mdLink = trimmed.match(/^\[.*?\]\((https?:\/\/[^)]+)\)$/);
+  const mdLink = clean.match(/^\[.*?\]\((https?:\/\/[^)]+)\)$/);
   if (mdLink) {
     const m = mdLink[1].match(TWEET_STATUS_RE);
     return m ? m[1] : null;
@@ -118,9 +121,16 @@ export default function MarkdownRenderer({ content }: { content: string }) {
           </td>
         ),
         a: ({ href, title, children }) => {
+          // Embed when href is a tweet URL AND the visible link text is the URL
+          // itself (e.g. agent wrote [x.com/…/status/123](https://x.com/…/status/123))
+          const tweetMatch = href?.match(TWEET_STATUS_RE);
+          if (tweetMatch) {
+            const text = String(children ?? '').trim();
+            const textIsUrl = /^https?:\/\//.test(text) || /^(?:x|twitter)\.com\//.test(text);
+            if (textIsUrl) return <TweetEmbed tweetId={tweetMatch[1]} />;
+          }
+
           const isExternal = href?.startsWith('http');
-          // External links are nofollow by default; opt into dofollow with a
-          // markdown title: [text](https://example.com "dofollow").
           const dofollow = typeof title === 'string' && /dofollow/i.test(title);
           return (
             <a
