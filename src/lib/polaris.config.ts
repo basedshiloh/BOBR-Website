@@ -11,13 +11,6 @@ export const CATEGORIES: CategoryMap = {
     darkBg: "dark:bg-blue-900",
     darkText: "dark:text-blue-300",
   },
-  base: {
-    label: "Base",
-    bg: "bg-indigo-100",
-    text: "text-indigo-700",
-    darkBg: "dark:bg-indigo-900",
-    darkText: "dark:text-indigo-300",
-  },
   markets: {
     label: "Markets",
     bg: "bg-emerald-100",
@@ -51,7 +44,6 @@ export const CATEGORIES: CategoryMap = {
 // Ordered list used by the site nav / category pages.
 export const CATEGORY_ORDER = [
   "builders",
-  "base",
   "markets",
   "culture",
   "guides",
