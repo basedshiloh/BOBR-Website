@@ -16,7 +16,7 @@ export default function Masthead() {
     <header className="bg-paper">
       {/* Top edition bar */}
       <div className="border-b border-rule">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-1.5 text-[11px] text-ink-soft">
+        <div className="mx-auto flex max-w-6xl items-center justify-center px-4 py-1.5 text-[11px] text-ink-soft sm:justify-between">
           <span className="hidden sm:inline">{today}</span>
           <span className="kicker text-bobr-600">From the trenches</span>
           <a
