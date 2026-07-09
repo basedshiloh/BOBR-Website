@@ -21,9 +21,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/contact`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/donate`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/editorial-policy`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/privacy-policy`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/cookie-policy`, changeFrequency: "yearly", priority: 0.3 },
+  ];
+
   return [
     { url: `${BASE}/`, changeFrequency: "hourly", priority: 1 },
     ...categoryEntries,
+    ...staticPages,
     ...postEntries,
   ];
 }
