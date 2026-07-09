@@ -36,7 +36,7 @@ export async function GET() {
 <rss version="2.0">
   <channel>
     <title>BOBR — Builder-first crypto</title>
-    <link>${BASE}</link>
+    <link>${BASE}/</link>
     <description>Dispatches from the trenches. Base, markets, culture and guides.</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>

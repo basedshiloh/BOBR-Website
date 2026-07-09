@@ -25,15 +25,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Not found" };
+  const canonicalUrl = `https://basedbobr.com/blog/${post.slug}`;
   return {
     title: post.title,
     description: post.metaDescription || post.excerpt,
+    keywords: post.tags?.join(", ") || undefined,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: post.title,
       description: post.metaDescription || post.excerpt,
+      url: canonicalUrl,
       type: "article",
       publishedTime: post.date,
       modifiedTime: post.updatedDate,
+      authors: post.author?.name ? [post.author.name] : undefined,
       images: post.featuredImage ? [{ url: post.featuredImage }] : undefined,
     },
     twitter: {
@@ -74,7 +79,7 @@ export default async function PostPage({
       />
       <JsonLd
         data={breadcrumbSchema([
-          { name: "Home", url: "https://basedbobr.com" },
+          { name: "Home", url: "https://basedbobr.com/" },
           { name: cat.label, url: `https://basedbobr.com/${primaryCategory}` },
           { name: post.title, url },
         ])}

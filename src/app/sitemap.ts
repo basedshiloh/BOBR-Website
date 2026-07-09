@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   return [
-    { url: BASE, changeFrequency: "hourly", priority: 1 },
+    { url: `${BASE}/`, changeFrequency: "hourly", priority: 1 },
     ...categoryEntries,
     ...postEntries,
   ];

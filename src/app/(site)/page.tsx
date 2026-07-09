@@ -1,11 +1,22 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getPublishedPosts } from "@/cms/server/posts";
 import AdSlot from "@/cms/ads/AdSlot";
 import StoryCard from "@/components/site/StoryCard";
 import StoryGrid from "@/components/site/StoryGrid";
 import TrenchesRail from "@/components/site/TrenchesRail";
+import AboutCard from "@/components/site/AboutCard";
+import JsonLd from "@/cms/components/seo/JsonLd";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "https://basedbobr.com/" },
+  keywords: ["crypto news", "Base blockchain", "builder", "defi", "web3", "memecoin", "BOBR"],
+  openGraph: {
+    url: "https://basedbobr.com/",
+  },
+};
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -47,6 +58,19 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "BOBR",
+        "url": "https://basedbobr.com/",
+        "description": "Builder-first crypto news, from the trenches.",
+      }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "BOBR",
+        "url": "https://basedbobr.com/",
+      }} />
       <AdSlot placement="home_top" />
 
       {posts.length === 0 ? (
@@ -81,6 +105,7 @@ export default async function HomePage() {
               ) : (
                 <p className="text-sm text-ink-soft">More stories coming soon.</p>
               )}
+              <AboutCard />
             </div>
             <aside className="mx-auto w-full max-w-sm space-y-8 lg:mx-0 lg:max-w-none lg:col-span-4 lg:border-l lg:border-rule lg:pl-6">
               <AdSlot placement="home_sidebar" />
