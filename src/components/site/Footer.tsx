@@ -39,6 +39,15 @@ export default function Footer() {
             <a href="https://x.com/BasedBOBR" target="_blank" rel="noopener noreferrer" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">X / Twitter</a>
             <a href="https://t.me" target="_blank" rel="noopener noreferrer" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Telegram</a>
             <a href="/rss.xml" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">RSS feed</a>
+            <Link href="/donate" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Support BOBR</Link>
+          </nav>
+
+          <nav className="flex flex-col gap-1.5">
+            <span className="kicker mb-1 text-ink-soft/60">Site</span>
+            <Link href="/contact" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Contact</Link>
+            <Link href="/editorial-policy" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Editorial Policy</Link>
+            <Link href="/privacy-policy" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Privacy Policy</Link>
+            <Link href="/cookie-policy" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Cookie Policy</Link>
           </nav>
         </div>
 
