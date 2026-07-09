@@ -37,7 +37,7 @@ export default function Footer() {
           <nav className="flex flex-col gap-1.5">
             <span className="kicker mb-1 text-ink-soft/60">Community</span>
             <a href="https://x.com/BasedBOBR" target="_blank" rel="noopener noreferrer" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">X / Twitter</a>
-            <a href="https://t.me" target="_blank" rel="noopener noreferrer" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Telegram</a>
+            <a href="https://t.me/basedbobr_updates" target="_blank" rel="noopener noreferrer" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Telegram</a>
             <a href="/rss.xml" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">RSS feed</a>
             <Link href="/donate" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Support BOBR</Link>
           </nav>
