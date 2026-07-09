@@ -109,12 +109,18 @@ export default function ServicesPage() {
             — our own mint site, built with the same stack.
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/contact?subject=NFT+Mint+Website"
+              href="/services/nft-mint-website"
               className="inline-block rounded-full bg-bobr-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-bobr-700"
             >
-              Get in touch →
+              Learn more →
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-block rounded-full border border-rule px-6 py-3 text-sm font-semibold text-ink-soft transition-colors hover:border-bobr-300 hover:text-bobr-700"
+            >
+              Get in touch
             </Link>
           </div>
         </section>
@@ -232,6 +238,21 @@ export default function ServicesPage() {
             All plans are monthly. Reach out to discuss custom arrangements or
             trial periods.
           </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/services/crypto-community-manager"
+              className="inline-block rounded-full bg-bobr-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-bobr-700"
+            >
+              Learn more →
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-block rounded-full border border-rule px-6 py-3 text-sm font-semibold text-ink-soft transition-colors hover:border-bobr-300 hover:text-bobr-700"
+            >
+              Get in touch
+            </Link>
+          </div>
         </section>
       </div>
 
