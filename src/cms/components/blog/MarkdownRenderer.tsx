@@ -129,13 +129,15 @@ export default function MarkdownRenderer({ content }: { content: string }) {
           }
 
           const isExternal = href?.startsWith('http');
-          const dofollow = typeof title === 'string' && /dofollow/i.test(title);
+          const nofollow = typeof title === 'string' && /nofollow/i.test(title);
+          // Strip the legacy "dofollow" workaround marker — it's not human-readable tooltip text
+          const displayTitle = typeof title === 'string' && /^dofollow$/i.test(title.trim()) ? undefined : title;
           return (
             <a
               href={href}
-              title={title}
+              title={displayTitle}
               target={isExternal ? '_blank' : undefined}
-              rel={isExternal ? (dofollow ? 'noopener noreferrer' : 'noopener noreferrer nofollow') : undefined}
+              rel={isExternal ? (nofollow ? 'noopener noreferrer nofollow' : 'noopener noreferrer') : undefined}
               className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               {children}
