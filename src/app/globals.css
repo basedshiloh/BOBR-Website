@@ -57,6 +57,61 @@ body {
   border-left: 1px solid var(--color-rule);
 }
 
+/* ── Accessibility panel ─────────────────────────────────────────────────── */
+
+/* Dyslexia-friendly font (Lexend) */
+.a11y-dyslexia body,
+.a11y-dyslexia p,
+.a11y-dyslexia li,
+.a11y-dyslexia blockquote { font-family: var(--font-lexend), sans-serif; }
+
+/* High contrast */
+.a11y-high-contrast { filter: contrast(1.6); }
+
+/* Monochrome */
+.a11y-monochrome { filter: grayscale(1); }
+
+/* Big cursor */
+.a11y-big-cursor,
+.a11y-big-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 16 16'%3E%3Cpath d='M0 0L0 11L3.5 8H10L7.5 16L9.5 16.5L12 8H16L0 0Z' fill='%23000' stroke='%23fff' stroke-width='1.2'/%3E%3C/svg%3E") 0 0, auto !important;
+}
+
+/* Reading guide line */
+#a11y-reading-guide {
+  display: none;
+  position: fixed;
+  left: 0; right: 0;
+  height: 40px;
+  background: rgba(255, 200, 0, 0.18);
+  border-top: 1px solid rgba(255, 180, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 180, 0, 0.4);
+  pointer-events: none;
+  z-index: 9998;
+}
+.a11y-reading-line #a11y-reading-guide { display: block; }
+
+/* Highlight links */
+.a11y-highlight-links a:not([aria-label]):not([data-a11y-keep]) {
+  background: #fff176 !important;
+  color: #000 !important;
+  text-decoration: underline !important;
+  border-radius: 2px;
+}
+
+/* Hide images */
+.a11y-hide-images img { visibility: hidden !important; }
+
+/* Pause animations */
+.a11y-pause-animations *,
+.a11y-pause-animations *::before,
+.a11y-pause-animations *::after {
+  animation-play-state: paused !important;
+  transition-duration: 0ms !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────── */
+
 /* Thin, all-caps "kicker"/section label used across the masthead + section
    headers, evoking newspaper standfirsts. */
 .kicker {

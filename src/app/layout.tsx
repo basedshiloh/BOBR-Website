@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter, Geist_Mono, Lexend } from "next/font/google";
 import "./globals.css";
 
 // Display serif for headlines — Fraunces has a warm, slightly playful character
@@ -20,6 +20,12 @@ const inter = Inter({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const lexend = Lexend({
+  variable: "--font-lexend",
   subsets: ["latin"],
   display: "swap",
 });
@@ -48,7 +54,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${inter.variable} ${geistMono.variable} ${lexend.variable} h-full antialiased`}
       data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col">{children}</body>
