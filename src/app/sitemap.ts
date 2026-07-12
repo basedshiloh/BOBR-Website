@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const staticPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/about`, changeFrequency: "yearly", priority: 0.5 },
     { url: `${BASE}/contact`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/services`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/services/nft-mint-website`, changeFrequency: "monthly", priority: 0.7 },

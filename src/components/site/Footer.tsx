@@ -44,6 +44,7 @@ export default function Footer() {
 
           <nav className="flex flex-col gap-1.5">
             <span className="kicker mb-1 text-ink-soft/60">Site</span>
+            <Link href="/about" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">About</Link>
             <Link href="/contact" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Contact</Link>
             <Link href="/services" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Services</Link>
             <Link href="/editorial-policy" className="text-sm text-ink-soft transition-colors hover:text-bobr-600">Editorial Policy</Link>
