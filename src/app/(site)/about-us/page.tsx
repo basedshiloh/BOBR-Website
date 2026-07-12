@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "About BOBR",
   description:
     "BOBR started as a community-driven memecoin on Base. Today it's a builder-first crypto news desk run by Shiloh and a handful of holdouts who refused to fade.",
-  alternates: { canonical: "https://basedbobr.com/about" },
+  alternates: { canonical: "https://basedbobr.com/about-us" },
 };
 
 function TeamCard({
