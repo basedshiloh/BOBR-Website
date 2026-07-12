@@ -57,7 +57,16 @@ function toStringArray(v: unknown): string[] {
   return [];
 }
 
+// Shiloh's full profile — applied automatically when no author is assigned to a post.
+const SHILOH_DEFAULT = {
+  slug: 'shiloh',
+  xUrl: 'https://x.com/0xshilloh',
+  githubUrl: undefined,
+  websiteUrl: 'https://basedbobr.com',
+} as const;
+
 export function rowToPost(r: PostRow): Post {
+  const noAuthorAssigned = !r.author_id;
   return {
     id: r.id,
     slug: r.slug,
@@ -75,10 +84,10 @@ export function rowToPost(r: PostRow): Post {
       name: r.author_name,
       bio: r.author_bio,
       avatar: r.author_joined_avatar || 'https://basedbobr.b-cdn.net/basedbobr/nft%20bver.webp',
-      slug: r.author_slug || undefined,
-      xUrl: r.author_x_url || undefined,
+      slug: r.author_slug || (noAuthorAssigned ? SHILOH_DEFAULT.slug : undefined),
+      xUrl: r.author_x_url || (noAuthorAssigned ? SHILOH_DEFAULT.xUrl : undefined),
       githubUrl: r.author_github_url || undefined,
-      websiteUrl: r.author_website_url || undefined,
+      websiteUrl: r.author_website_url || (noAuthorAssigned ? SHILOH_DEFAULT.websiteUrl : undefined),
     },
     content: r.content,
     featuredImage: r.featured_image,
