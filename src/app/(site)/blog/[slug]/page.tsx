@@ -10,7 +10,7 @@ import SummaryBox from "@/cms/components/blog/SummaryBox";
 import MarkdownRenderer from "@/cms/components/blog/MarkdownRenderer";
 import RelatedPosts from "@/cms/components/blog/RelatedPosts";
 import CommentSection from "@/cms/components/shared/CommentSection";
-import JsonLd, { articleSchema, breadcrumbSchema } from "@/cms/components/seo/JsonLd";
+import JsonLd, { breadcrumbSchema } from "@/cms/components/seo/JsonLd";
 import AdSlot from "@/cms/ads/AdSlot";
 import { DesktopTOC, MobileTOC } from "@/components/site/TableOfContents";
 import { CATEGORIES } from "@/lib/polaris.config";
@@ -63,24 +63,44 @@ export default async function PostPage({
   const related = await getRelatedPosts(slug, primaryCategory, 3);
   const cat = categoryStyle(CATEGORIES, primaryCategory);
   const url = `https://basedbobr.com/blog/${post.slug}`;
+  const categoryUrl = `https://basedbobr.com/${primaryCategory}`;
+  const description = post.metaDescription || post.excerpt || "";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <JsonLd
-        data={articleSchema({
-          title: post.title,
-          description: post.metaDescription || post.excerpt,
-          url,
-          datePublished: post.date,
-          dateModified: post.updatedDate,
-          authorName: post.author?.name,
-          publisherName: "BOBR",
-        })}
-      />
+      {/* NewsArticle schema — more specific than Article, eligible for Google News */}
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": post.title,
+        "description": description,
+        "url": url,
+        "mainEntityOfPage": { "@type": "WebPage", "@id": url },
+        ...(post.date ? { "datePublished": post.date } : {}),
+        ...(post.updatedDate ? { "dateModified": post.updatedDate } : {}),
+        "author": {
+          "@type": "Person",
+          "name": post.author?.name || "BOBR Editorial",
+          ...(post.author?.name ? { "url": "https://basedbobr.com/about-us" } : {}),
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "BOBR",
+          "url": "https://basedbobr.com/",
+        },
+        ...(post.featuredImage ? { "image": { "@type": "ImageObject", "url": post.featuredImage } } : {}),
+        "articleSection": cat.label,
+        ...(post.tags?.length ? { "keywords": post.tags.join(", ") } : {}),
+        "isAccessibleForFree": true,
+        "inLanguage": "en-US",
+      }} />
+
+      {/* Breadcrumb schema */}
       <JsonLd
         data={breadcrumbSchema([
           { name: "Home", url: "https://basedbobr.com/" },
-          { name: cat.label, url: `https://basedbobr.com/${primaryCategory}` },
+          { name: "Blog", url: "https://basedbobr.com/blog" },
+          { name: cat.label, url: categoryUrl },
           { name: post.title, url },
         ])}
       />
@@ -89,10 +109,16 @@ export default async function PostPage({
         {/* Article column */}
         <article className="mx-auto w-full max-w-[720px] xl:col-span-8">
           {/* Breadcrumb */}
-          <nav className="mb-4 text-xs text-ink-soft">
+          <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-1 text-xs text-ink-soft">
             <Link href="/" className="hover:text-bobr-600">Home</Link>
-            <span className="mx-1.5">/</span>
+            <span aria-hidden>/</span>
+            <Link href="/blog" className="hover:text-bobr-600">Blog</Link>
+            <span aria-hidden>/</span>
             <Link href={`/${primaryCategory}`} className="hover:text-bobr-600">{cat.label}</Link>
+            <span aria-hidden>/</span>
+            <span aria-current="page" className="max-w-[200px] truncate text-ink sm:max-w-xs">
+              {post.title}
+            </span>
           </nav>
 
           <div className="flex flex-wrap gap-2">
