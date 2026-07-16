@@ -2,6 +2,12 @@
 
 import { useEffect, useRef } from 'react';
 
+declare global {
+  interface Window {
+    atOptions: Record<string, unknown>;
+  }
+}
+
 // Each banner size maps to its highperformanceformat.com key
 const BANNER_CONFIGS: Record<string, { key: string; width: number; height: number }> = {
   '728x90':  { key: 'b29539cf70bddfc5f036a768b3d4e846', width: 728, height: 90  },
@@ -27,7 +33,7 @@ function InjectBanner({ adKey, width, height }: { adKey: string; width: number; 
     const el = ref.current;
     if (!el) return;
 
-    (window as Record<string, unknown>).atOptions = {
+    window.atOptions = {
       key: adKey,
       format: 'iframe',
       height,
