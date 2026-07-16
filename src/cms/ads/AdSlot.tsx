@@ -1,6 +1,7 @@
 import { getActiveAd } from "./ads-server";
 import { AD_PLACEMENTS } from "./placements";
 import AdEmbed from "./AdEmbed";
+import NetworkBanner from "./NetworkBanner";
 
 const SHOW_PLACEHOLDERS = process.env.NEXT_PUBLIC_AD_PLACEHOLDERS === "true";
 
@@ -14,19 +15,22 @@ export default async function AdSlot({
   const ad = await getActiveAd(placement);
 
   if (!ad) {
-    if (!SHOW_PLACEHOLDERS) return null;
-    const def = AD_PLACEMENTS.find((p) => p.id === placement);
-    return (
-      <aside
-        className={`not-prose my-6 flex flex-col items-center ${className}`}
-        aria-label="Ad placeholder"
-      >
-        <div className="w-full rounded-md border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Ad — {def?.label ?? placement}</p>
-          <p className="mt-1 text-xs text-gray-300">{def?.hint}</p>
-        </div>
-      </aside>
-    );
+    if (SHOW_PLACEHOLDERS) {
+      const def = AD_PLACEMENTS.find((p) => p.id === placement);
+      return (
+        <aside
+          className={`not-prose my-6 flex flex-col items-center ${className}`}
+          aria-label="Ad placeholder"
+        >
+          <div className="w-full rounded-md border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Ad — {def?.label ?? placement}</p>
+            <p className="mt-1 text-xs text-gray-300">{def?.hint}</p>
+          </div>
+        </aside>
+      );
+    }
+    // No CMS ad configured — fall back to network banner
+    return <NetworkBanner placement={placement} className={className} />;
   }
 
   const isImage = ad.type === "image" && ad.imageUrl;
